@@ -413,7 +413,7 @@ class Expression( object ):
             r = t.toRepr(args,self)
             args.append(r)
         if len(args) > 1:
-            return args
+            return "[{}]".format(", ".join(args))
         else:
             return args[0]
 
@@ -639,6 +639,8 @@ class Expression( object ):
         elif op[1] == 'OP':
             fn = ops[op[0]]
             fn['type'] = 'OP'
+        else:
+            raise ValueError("Unsupported function operator: {}".format(op))
         return fn
 
     def __compile(self):
@@ -728,7 +730,7 @@ class Expression( object ):
             v = self.__next(__expect_op)
         if len(stack) > 0:
             op = stack.pop()
-            while op != "(":
+            while op[0] != "(":
                 fs = self.__getfunction(op)
                 self.__expr.append(ExpressionFunction(fs['func'],fs['args'],fs['str'],fs['latex'],op[0],False))
                 if len(stack) > 0:
