@@ -23,6 +23,7 @@ except ImportError:
 
     has_numpy = False
 import operator as op
+from functools import reduce
 from Equation.util import addOp, addFn, addConst, addUnaryOp
 from Equation.similar import sim, nsim, gsim, lsim
 
@@ -40,68 +41,25 @@ def equation_extend():
         else:
             return sum(args)
 
+    # fmt: off
     addOp("+", "({0:s} + {1:s})", "\\left({0:s} + {1:s}\\right)", False, 3, op.add)
     addOp("-", "({0:s} - {1:s})", "\\left({0:s} - {1:s}\\right)", False, 3, op.sub)
-    addOp(
-        "*", "({0:s} * {1:s})", "\\left({0:s} \\times {1:s}\\right)", False, 2, op.mul
-    )
+    addOp("*", "({0:s} * {1:s})", "\\left({0:s} \\times {1:s}\\right)", False, 2, op.mul)
     addOp("/", "({0:s} / {1:s})", "\\frac{{{0:s}}}{{{1:s}}}", False, 2, op.truediv)
     addOp("%", "({0:s} % {1:s})", "\\left({0:s} \\bmod {1:s}\\right)", False, 2, op.mod)
     addOp("^", "({0:s} ^ {1:s})", "{0:s}^{{{1:s}}}", False, 1, op.pow)
     addOp("**", "({0:s} ^ {1:s})", "{0:s}^{{{1:s}}}", False, 1, op.pow)
-    addOp(
-        "&&",
-        "({0:s} && {1:s})",
-        "\\left({0:s} \\land {1:s}\\right)",
-        False,
-        6,
-        lambda a, b: bool(a) and bool(b),
-    )
-    addOp(
-        "||",
-        "({0:s} || {1:s})",
-        "\\left({0:s} \\lor {1:s}\\right)",
-        False,
-        6,
-        lambda a, b: bool(a) or bool(b),
-    )
+    addOp("&&", "({0:s} && {1:s})", "\\left({0:s} \\land {1:s}\\right)", False, 6, lambda a, b: bool(a) and bool(b))
+    addOp("||", "({0:s} || {1:s})", "\\left({0:s} \\lor {1:s}\\right)", False, 6, lambda a, b: bool(a) or bool(b))
     addOp("&", "({0:s} & {1:s})", "\\left({0:s} \\cap {1:s}\\right)", False, 4, op.and_)
     addOp("|", "({0:s} | {1:s})", "\\left({0:s} \\cup {1:s}\\right)", False, 4, op.or_)
-    addOp(
-        "</>",
-        "({0:s} </> {1:s})",
-        "\\left({0:s} \\oplus {1:s}\\right)",
-        False,
-        4,
-        op.xor,
-    )
-    addOp(
-        "&|",
-        "({0:s} </> {1:s})",
-        "\\left({0:s} \\oplus {1:s}\\right)",
-        False,
-        4,
-        op.xor,
-    )
-    addOp(
-        "|&",
-        "({0:s} </> {1:s})",
-        "\\left({0:s} \\oplus {1:s}\\right)",
-        False,
-        4,
-        op.xor,
-    )
+    addOp("</>", "({0:s} </> {1:s})", "\\left({0:s} \\oplus {1:s}\\right)", False, 4, op.xor)
+    addOp("&|", "({0:s} </> {1:s})", "\\left({0:s} \\oplus {1:s}\\right)", False, 4, op.xor)
+    addOp("|&", "({0:s} </> {1:s})", "\\left({0:s} \\oplus {1:s}\\right)", False, 4, op.xor)
     addOp("==", "({0:s} == {1:s})", "\\left({0:s} = {1:s}\\right)", False, 5, op.eq)
     addOp("=", "({0:s} == {1:s})", "\\left({0:s} = {1:s}\\right)", False, 5, op.eq)
     addOp("~", "({0:s} ~ {1:s})", "\\left({0:s} \\approx {1:s}\\right)", False, 5, sim)
-    addOp(
-        "!~",
-        "({0:s} !~ {1:s})",
-        "\\left({0:s} \\not\\approx {1:s}\\right)",
-        False,
-        5,
-        nsim,
-    )
+    addOp("!~", "({0:s} !~ {1:s})", "\\left({0:s} \\not\\approx {1:s}\\right)", False, 5, nsim)
     addOp("!=", "({0:s} != {1:s})", "\\left({0:s} \\neq {1:s}\\right)", False, 5, op.ne)
     addOp("<>", "({0:s} != {1:s})", "\\left({0:s} \\neq {1:s}\\right)", False, 5, op.ne)
     addOp("><", "({0:s} != {1:s})", "\\left({0:s} \\neq {1:s}\\right)", False, 5, op.ne)
@@ -111,38 +69,10 @@ def equation_extend():
     addOp(">=", "({0:s} >= {1:s})", "\\left({0:s} \\geq {1:s}\\right)", False, 5, op.ge)
     addOp("=<", "({0:s} <= {1:s})", "\\left({0:s} \\leq {1:s}\\right)", False, 5, op.le)
     addOp("=>", "({0:s} >= {1:s})", "\\left({0:s} \\geq {1:s}\\right)", False, 5, op.ge)
-    addOp(
-        "<~",
-        "({0:s} <~ {1:s})",
-        "\\left({0:s} \lessapprox {1:s}\\right)",
-        False,
-        5,
-        lsim,
-    )
-    addOp(
-        ">~",
-        "({0:s} >~ {1:s})",
-        "\\left({0:s} \\gtrapprox {1:s}\\right)",
-        False,
-        5,
-        gsim,
-    )
-    addOp(
-        "~<",
-        "({0:s} <~ {1:s})",
-        "\\left({0:s} \lessapprox {1:s}\\right)",
-        False,
-        5,
-        lsim,
-    )
-    addOp(
-        "~>",
-        "({0:s} >~ {1:s})",
-        "\\left({0:s} \\gtrapprox {1:s}\\right)",
-        False,
-        5,
-        gsim,
-    )
+    addOp("<~", "({0:s} <~ {1:s})", "\\left({0:s} \\lessapprox {1:s}\\right)", False, 5, lsim)
+    addOp(">~", "({0:s} >~ {1:s})", "\\left({0:s} \\gtrapprox {1:s}\\right)", False, 5, gsim)
+    addOp("~<", "({0:s} <~ {1:s})", "\\left({0:s} \\lessapprox {1:s}\\right)", False, 5, lsim)
+    addOp("~>", "({0:s} >~ {1:s})", "\\left({0:s} \\gtrapprox {1:s}\\right)", False, 5, gsim)
     addUnaryOp("!", "(!{0:s})", "\\neg{0:s}", op.not_)
     addUnaryOp("-", "-{0:s}", "-{0:s}", op.neg)
     addFn("abs", "abs({0:s})", "\\left|{0:s}\\right|", 1, op.abs)
@@ -178,3 +108,4 @@ def equation_extend():
         addConst("e", math.e)
         addConst("Inf", float("Inf"))
         addConst("NaN", float("NaN"))
+    # fmt: on
