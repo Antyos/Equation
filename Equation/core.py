@@ -762,7 +762,7 @@ class Expression(object):
         self.__expr = []
         stack = []
         argc = []
-        __expect_op = False # Expect next token to be value (false) or operator (true)
+        __expect_op = False  # Expect next token to be value (false) or operator (true)
 
         # Step through expression tokens
         v = self.__next(__expect_op)
@@ -774,8 +774,16 @@ class Expression(object):
 
             # Close block
             elif __expect_op and v[1] == "CLOSE":
-                # Back-track through stack until finding the previous OPEN
-                op = stack.pop()
+                # Make sure we can pop from the stack
+                if len(stack) > 0:
+                    op = stack.pop()
+                else:
+                    raise SyntaxError(
+                        'Encountered closing "{0:s}" without a matching opening one.'.format(
+                            v[0]
+                        )
+                    )
+                # Backtrack through stack until finding the last OPEN
                 while op[1] != "OPEN":
                     fs = self.__getfunction(op)
                     self.__expr.append(
@@ -783,12 +791,21 @@ class Expression(object):
                             fs["func"], fs["args"], fs["str"], fs["latex"], op[0], False
                         )
                     )
-                    op = stack.pop()
-                    # if len(stack) == 0: raise SyntaxError("Invalid Paren count")
-                    # As if/else
+
+                    # Make sure we can pop from the stack
+                    if len(stack) > 0:
+                        op = stack.pop()
+                    else:
+                        raise SyntaxError(
+                            'Encountered closing "{0:s}" without a matching opening one.'.format(
+                                v[0]
+                            )
+                        )
+                # If the last token in the stack is a function (after we have
+                # encountered an opening paren, then this is a function call)
                 if len(stack) > 0 and stack[-1][0] in functions:
                     op = stack.pop()
-                    fs = functions[op[0]] # Stack function
+                    fs = functions[op[0]]  # Stack function
                     args = argc.pop()
                     if fs["args"] != "+" and (
                         args != fs["args"] and args not in fs["args"]
