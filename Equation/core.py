@@ -755,7 +755,7 @@ class Expression(object):
             fn = ops[op[0]]
             fn["type"] = "OP"
         else:
-            raise ValueError("Unsupported function operator: {}".format(op))
+            raise ValueError("Unsupported function operator: {0:s}".format(op))
         return fn
 
     def __compile(self):
@@ -914,6 +914,7 @@ class Expression(object):
                 )
             v = self.__next(__expect_op)
 
+        # Collapse the rest of the stack after coming across the last token
         if len(stack) > 0:
             op = stack.pop()
             while op[0] != "(":
@@ -927,6 +928,9 @@ class Expression(object):
                     op = stack.pop()
                 else:
                     break
+            # Raise an error if we weren't able tollapse the stack completely
+            if len(stack) > 0:
+                raise SyntaxError("Too few closing parentheses")
 
 
 constants = {}
