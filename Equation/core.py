@@ -400,7 +400,7 @@ class Expression(object):
                 elif g["bin"]:
                     return int(g["binsign"] + "1") * int(g["binvalue"], 2), "VALUE"
                 else:
-                    raise NotImplemented(
+                    raise NotImplementedError(
                         "'{0:s}' Values Not Implemented Yet".format(m.string)
                     )
             m = nmatch.match(self.__expression)
@@ -822,7 +822,7 @@ class Expression(object):
 
             # Operator (*, +, etc.)
             elif __expect_op and v[0] in ops:
-                fn = ops[v[0]] # New function
+                fn = ops[v[0]]  # New function
                 if len(stack) == 0:
                     stack.append(v)
                     __expect_op = False
@@ -835,7 +835,7 @@ class Expression(object):
                     __expect_op = False
                     v = self.__next(__expect_op)
                     continue
-                fs = self.__getfunction(op) # Stack function
+                fs = self.__getfunction(op)  # Stack function
                 while True:
                     if fn["prec"] >= fs["prec"]:
                         self.__expr.append(
