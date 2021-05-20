@@ -762,13 +762,19 @@ class Expression(object):
         self.__expr = []
         stack = []
         argc = []
-        __expect_op = False
+        __expect_op = False # Expect next token to be value (false) or operator (true)
+
+        # Step through expression tokens
         v = self.__next(__expect_op)
         while v != None:
+            # Open block
             if not __expect_op and v[1] == "OPEN":
                 stack.append(v)
                 __expect_op = False
+
+            # Close block
             elif __expect_op and v[1] == "CLOSE":
+                # Back-track through stack until finding the previous OPEN
                 op = stack.pop()
                 while op[1] != "OPEN":
                     fs = self.__getfunction(op)
@@ -778,9 +784,11 @@ class Expression(object):
                         )
                     )
                     op = stack.pop()
+                    # if len(stack) == 0: raise SyntaxError("Invalid Paren count")
+                    # As if/else
                 if len(stack) > 0 and stack[-1][0] in functions:
                     op = stack.pop()
-                    fs = functions[op[0]]
+                    fs = functions[op[0]] # Stack function
                     args = argc.pop()
                     if fs["args"] != "+" and (
                         args != fs["args"] and args not in fs["args"]
@@ -796,6 +804,8 @@ class Expression(object):
                         )
                     )
                 __expect_op = True
+
+            # Separator
             elif __expect_op and v[0] == ",":
                 argc[-1] += 1
                 op = stack.pop()
@@ -809,8 +819,10 @@ class Expression(object):
                     op = stack.pop()
                 stack.append(op)
                 __expect_op = False
+
+            # Operator (*, +, etc.)
             elif __expect_op and v[0] in ops:
-                fn = ops[v[0]]
+                fn = ops[v[0]] # New function
                 if len(stack) == 0:
                     stack.append(v)
                     __expect_op = False
@@ -823,7 +835,7 @@ class Expression(object):
                     __expect_op = False
                     v = self.__next(__expect_op)
                     continue
-                fs = self.__getfunction(op)
+                fs = self.__getfunction(op) # Stack function
                 while True:
                     if fn["prec"] >= fs["prec"]:
                         self.__expr.append(
@@ -850,23 +862,33 @@ class Expression(object):
                         stack.append(v)
                         break
                 __expect_op = False
+
+            # Unary operators (!, -)
             elif not __expect_op and v[0] in unary_ops:
                 fn = unary_ops[v[0]]
                 stack.append(v)
                 __expect_op = False
+
+            # Functions (abs(), pow(), etc.)
             elif not __expect_op and v[0] in functions:
                 stack.append(v)
                 argc.append(1)
                 __expect_op = False
+
+            # Alphanumeric value ('x', 'num', etc.)
             elif not __expect_op and v[1] == "NAME":
                 self.__argsused.add(v[0])
                 if v[0] not in self.__args:
                     self.__args.append(v[0])
                 self.__expr.append(ExpressionVariable(v[0]))
                 __expect_op = True
+
+            # Numeric value (1, 2, 3, etc.)
             elif not __expect_op and v[1] == "VALUE":
                 self.__expr.append(ExpressionValue(v[0]))
                 __expect_op = True
+
+            # Unexpected token
             else:
                 raise SyntaxError(
                     'Invalid Token "{0:s}" in Expression, Expected {1:s}'.format(
@@ -874,6 +896,7 @@ class Expression(object):
                     )
                 )
             v = self.__next(__expect_op)
+
         if len(stack) > 0:
             op = stack.pop()
             while op[0] != "(":
