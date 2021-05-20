@@ -893,49 +893,51 @@ constants = {}
 unary_ops = {}
 ops = {}
 functions = {}
-smatch = re.compile("\s*,")
+smatch = re.compile(r"\s*,")
+# fmt: off
 vmatch = re.compile(
-    "\s*"
-    "(?:"
-    "(?P<oct>"
-    "(?P<octsign>[+-]?)"
-    "\s*0o"
-    "(?P<octvalue>[0-7]+)"
-    ")|(?P<hex>"
-    "(?P<hexsign>[+-]?)"
-    "\s*0x"
-    "(?P<hexvalue>[0-9a-fA-F]+)"
-    ")|(?P<bin>"
-    "(?P<binsign>[+-]?)"
-    "\s*0b"
-    "(?P<binvalue>[01]+)"
-    ")|(?P<dec>"
-    "(?P<rsign>[+-]?)"
-    "\s*"
-    "(?P<rvalue>(?:\d+\.\d+|\d+\.|\.\d+|\d+))"
-    "(?:"
-    "[Ee]"
-    "(?P<rexpoent>[+-]?\d+)"
-    ")?"
-    "(?:"
-    "\s*"
-    "(?P<sep>(?(rvalue)\+|))?"
-    "\s*"
-    "(?P<isign>(?(rvalue)(?(sep)[+-]?|[+-])|[+-]?)?)"
-    "\s*"
-    "(?P<ivalue>(?:\d+\.\d+|\d+\.|\.\d+|\d+))"
-    "(?:"
-    "[Ee]"
-    "(?P<iexpoent>[+-]?\d+)"
-    ")?"
-    "[ij]"
-    ")?"
-    ")"
-    ")"
+    r"\s*"
+    r"(?:"
+        r"(?P<oct>"
+            r"(?P<octsign>[+-]?)"
+            r"\s*0o"
+            r"(?P<octvalue>[0-7]+)"
+        r")|(?P<hex>"
+            r"(?P<hexsign>[+-]?)"
+            r"\s*0x"
+            r"(?P<hexvalue>[0-9a-fA-F]+)"
+        r")|(?P<bin>"
+            r"(?P<binsign>[+-]?)"
+            r"\s*0b"
+            r"(?P<binvalue>[01]+)"
+        r")|(?P<dec>"
+            r"(?P<rsign>[+-]?)"
+            r"\s*"
+            r"(?P<rvalue>(?:\d+\.\d+|\d+\.|\.\d+|\d+))"
+            r"(?:"
+                r"[Ee]"
+                r"(?P<rexpoent>[+-]?\d+)"
+            r")?"
+            r"(?:"
+                r"\s*"
+                r"(?P<sep>(?(rvalue)\+|))?"
+                r"\s*"
+                r"(?P<isign>(?(rvalue)(?(sep)[+-]?|[+-])|[+-]?)?)"
+                r"\s*"
+                r"(?P<ivalue>(?:\d+\.\d+|\d+\.|\.\d+|\d+))"
+                r"(?:"
+                    r"[Ee]"
+                    r"(?P<iexpoent>[+-]?\d+)"
+                r")?"
+                r"[ij]"
+            r")?"
+        r")"
+    r")"
 )
-nmatch = re.compile("\s*([a-zA-Z_][a-zA-Z0-9_]*)")
-gsmatch = re.compile("\s*(\()")
-gematch = re.compile("\s*(\))")
+# fmt: on
+nmatch = re.compile(r"\s*([a-zA-Z_][a-zA-Z0-9_]*)")
+gsmatch = re.compile(r"\s*(\()")
+gematch = re.compile(r"\s*(\))")
 
 
 def recalculateFMatch():
@@ -943,6 +945,6 @@ def recalculateFMatch():
     fks = sorted(functions.keys(), key=len, reverse=True)
     oks = sorted(ops.keys(), key=len, reverse=True)
     uks = sorted(unary_ops.keys(), key=len, reverse=True)
-    fmatch = re.compile("\s*(" + "|".join(map(re.escape, fks)) + ")")
-    omatch = re.compile("\s*(" + "|".join(map(re.escape, oks)) + ")")
-    umatch = re.compile("\s*(" + "|".join(map(re.escape, uks)) + ")")
+    fmatch = re.compile(r"\s*(" + r"|".join(map(re.escape, fks)) + r")")
+    omatch = re.compile(r"\s*(" + r"|".join(map(re.escape, oks)) + r")")
+    umatch = re.compile(r"\s*(" + r"|".join(map(re.escape, uks)) + r")")
