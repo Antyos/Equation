@@ -44,7 +44,7 @@ class ExpressionValue(ExpressionObject):
         if isinstance(self.value, complex):
             V = [self.value.real, self.value.imag]
             E = [0, 0]
-            B = [0, 0]
+            B = [0., 0.]
             out = ["", ""]
             for i in xrange(2):
                 if V[i] == 0:
@@ -370,7 +370,7 @@ class Expression(object):
             m = vmatch.match(self.__expression)
             if m != None:
                 self.__expression = self.__expression[m.end() :]
-                g = m.groupdict(0)
+                g = m.groupdict(0) # type: ignore
                 if g["dec"]:
                     if g["ivalue"]:
                         return (
@@ -560,7 +560,7 @@ class Expression(object):
                             )
                         )
                 obj.__expr = other.__expr + self.__expr
-                obj.__argsused = other.__argsused | self.__expr
+                obj.__argsused = other.__argsused | self.__expr # type: ignore
                 __args = other.__args
                 for v in obj.__args:
                     if v not in __args:
