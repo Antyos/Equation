@@ -802,24 +802,37 @@ class Expression(object):
                             )
                         )
                 # If the last token in the stack is a function (after we have
-                # encountered an opening paren, then this is a function call)
-                if len(stack) > 0 and stack[-1][0] in functions:
-                    op = stack.pop()
-                    fs = functions[op[0]]  # Stack function
-                    args = argc.pop()
-                    if fs["args"] != "+" and (
-                        args != fs["args"] and args not in fs["args"]
-                    ):
+                # encountered an opening paren), then this is a function call or
+                # improper syntax
+                if len(stack) > 0:
+                    # If value before '(' is a value, the user likely meant to infer
+                    # multiplication, such as `2(x+1)`. However, we want this explicitly
+                    # defined.
+                    if stack[-1][1] == "VALUE":
                         raise SyntaxError(
-                            "Invalid number of arguments for {0:s} function".format(
-                                op[0]
+                            "Need operator between {0:s} and {1:s}."
+                            " Did you mean to include '*'?".format(stack[-1][0], op[0])
+                        )
+
+                    # Default function call
+                    if stack[-1][0] in functions:
+                        op = stack.pop()
+                        fs = functions[op[0]]  # Stack function
+                        args = argc.pop()
+                        if fs["args"] != "+" and (
+                            args != fs["args"] and args not in fs["args"]
+                        ):
+                            raise SyntaxError(
+                                "Invalid number of arguments for {0:s} function".format(
+                                    op[0]
+                                )
+                            )
+                        self.__expr.append(
+                            ExpressionFunction(
+                                fs["func"], args, fs["str"], fs["latex"], op[0], True
                             )
                         )
-                    self.__expr.append(
-                        ExpressionFunction(
-                            fs["func"], args, fs["str"], fs["latex"], op[0], True
-                        )
-                    )
+
                 __expect_op = True
 
             # Separator
