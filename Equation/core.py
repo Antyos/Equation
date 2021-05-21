@@ -44,7 +44,7 @@ class ExpressionValue(ExpressionObject):
         if isinstance(self.value, complex):
             V = [self.value.real, self.value.imag]
             E = [0, 0]
-            B = [0., 0.]
+            B = [0.0, 0.0]
             out = ["", ""]
             for i in xrange(2):
                 if V[i] == 0:
@@ -274,7 +274,7 @@ class Expression(object):
         return name in self.__argsused
 
     def __call__(self, *args, **kwargs):
-        """fn(\*args,\*\*kwargs)
+        R"""fn(\*args,\*\*kwargs)
 
         Arguments
         ---------
@@ -370,7 +370,7 @@ class Expression(object):
             m = vmatch.match(self.__expression)
             if m != None:
                 self.__expression = self.__expression[m.end() :]
-                g = m.groupdict(0) # type: ignore
+                g = m.groupdict(0)  # type: ignore
                 if g["dec"]:
                     if g["ivalue"]:
                         return (
@@ -560,7 +560,7 @@ class Expression(object):
                             )
                         )
                 obj.__expr = other.__expr + self.__expr
-                obj.__argsused = other.__argsused | self.__expr # type: ignore
+                obj.__argsused = other.__argsused | self.__expr  # type: ignore
                 __args = other.__args
                 for v in obj.__args:
                     if v not in __args:
@@ -933,10 +933,10 @@ class Expression(object):
                 raise SyntaxError("Too few closing parentheses")
 
 
-constants = {}
-unary_ops = {}
-ops = {}
-functions = {}
+constants: dict = {}
+unary_ops: dict = {}
+ops: dict = {}
+functions: dict = {}
 smatch = re.compile(r"\s*,")
 # fmt: off
 vmatch = re.compile(
