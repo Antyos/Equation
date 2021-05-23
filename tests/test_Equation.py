@@ -20,8 +20,13 @@ class TestEquation(unittest.TestCase):
         self.assertEqual(Expression(repr(self.fn)), self.fn)
 
     def testCall(self):
-        self.assertAlmostEqual(self.fn(3, 4), 0.420167036826641)
-        self.assertAlmostEqual(self.fn(y=3, x=4), 0.420167036826641)
+        # Expression objects can return a variety of different types, one of which is
+        # double. assertAlmostEqual() can only take a double or datetime (and not any of
+        # the other types an evlauated expression can return), so the type checker gets
+        # upset. However, if fn() doesn't return a double, the test will fail anyway, so
+        # we don't really need to check the typing
+        self.assertAlmostEqual(self.fn(3, 4), 0.420167036826641)  # type: ignore
+        self.assertAlmostEqual(self.fn(y=3, x=4), 0.420167036826641) # type: ignore
 
     def tearDown(self):
         pass
@@ -35,8 +40,8 @@ class TestEquation2(unittest.TestCase):
         self.assertEqual(Expression(repr(self.fn)), self.fn)
 
     def testCall(self):
-        self.assertAlmostEqual(self.fn(3, 4), 0.149877209662952)
-        self.assertAlmostEqual(self.fn(x=3, y=4), 0.149877209662952)
+        self.assertAlmostEqual(self.fn(3, 4), 0.149877209662952)  # type: ignore
+        self.assertAlmostEqual(self.fn(x=3, y=4), 0.149877209662952)  # type: ignore
 
     def tearDown(self):
         pass
