@@ -188,8 +188,12 @@ class TestFloorEquation(unittest.TestCase):
         self.assertEqual(self.fn(2.9), 2)
         self.assertEqual(self.fn(1.0), 1)
         self.assertEqual(self.fn(-1.2), -2)
+        # Same type issue as described in TestEquation(). Evaluated Expression objects
+        # can return several types, including types that do not have the utilized
+        # method. However, if the return type doesn't have a tolist() method, it will
+        # raise an error and the test will still fail, so no need for type checking.
         self.assertEqual(
-            self.fn2(np.linspace(0, 1, 5)).tolist(), [2.0, 4.0, 2.0, 0.0, 1.0]
+            self.fn2(np.linspace(0, 1, 5)).tolist(), [2.0, 4.0, 2.0, 0.0, 1.0]  # type: ignore
         )
 
     def tearDown(self):
@@ -207,7 +211,7 @@ class TestCeilEquation(unittest.TestCase):
         self.assertEqual(self.fn(1.0), 1)
         self.assertEqual(self.fn(-1.2), -1)
         self.assertEqual(
-            self.fn2(np.linspace(0, 1, 5)).tolist(), [2.0, 4.0, 3.0, 0.0, 2.0]
+            self.fn2(np.linspace(0, 1, 5)).tolist(), [2.0, 4.0, 3.0, 0.0, 2.0]  # type: ignore
         )
 
     def tearDown(self):
@@ -227,7 +231,7 @@ class TestRoundEquation(unittest.TestCase):
         self.assertEqual(self.fn(-1.5), -2)
         self.assertEqual(self.fn(1.5), 2)
         self.assertEqual(
-            self.fn2(np.linspace(0, 1, 5)).tolist(), [2.0, 4.0, 2.0, 0.0, 2.0]
+            self.fn2(np.linspace(0, 1, 5)).tolist(), [2.0, 4.0, 2.0, 0.0, 2.0]  # type: ignore
         )
 
     def tearDown(self):
