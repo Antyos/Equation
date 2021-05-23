@@ -104,7 +104,8 @@ def load():
                         )
                     )
                     continue
-                plugin_script.equation_extend()
+                # The previous if statement checks we have this attribute; safe ignore.
+                plugin_script.equation_extend()  # type: ignore
         recalculateFMatch()
 
 
