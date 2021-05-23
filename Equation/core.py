@@ -15,6 +15,7 @@ import math
 
 import sys
 import re
+from typing import List, Optional
 
 if sys.version_info >= (3,):
     xrange = range
@@ -214,7 +215,10 @@ class Expression(object):
         for mapping from positional arguments
     """
 
-    def __init__(self, expression, argorder=[], *args, **kwargs):
+    def __init__(self, expression, argorder = None, *args, **kwargs):
+        if argorder is None:
+            argorder = []
+            
         super(Expression, self).__init__(*args, **kwargs)
         if isinstance(expression, type(self)):  # clone the object
             self.__args = list(expression.__args)
