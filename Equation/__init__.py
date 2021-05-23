@@ -32,12 +32,12 @@ all = ["util"]
 try:
     from Equation._info import *
 except ImportError:
-    from _info import *
+    from ._info import *
 
 try:
     from Equation.core import Expression
 except ImportError:
-    from core import Expression
+    from .core import Expression
 
 
 def load():
@@ -60,7 +60,7 @@ def load():
     try:
         from Equation.core import recalculateFMatch
     except ImportError:
-        from core import recalculateFMatch
+        from .core import recalculateFMatch
     if not hasattr(load, "loaded"):
         load.loaded = False
     if not load.loaded:
