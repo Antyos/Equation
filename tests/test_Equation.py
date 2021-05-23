@@ -751,5 +751,15 @@ class TestLessThanOrSimilarToEquation(unittest.TestCase):
         pass
 
 
+class TestMismatchedParens(unittest.TestCase):
+    def testExtraOpenParen(self):
+        self.assertRaises(SyntaxError, lambda: Expression("2*(x+3"))
+        self.assertRaises(SyntaxError, lambda: Expression("2*((x+3)-1"))
+    
+    def testExtraCloseParen(self):
+        self.assertRaises(SyntaxError, lambda: Expression("2*x+3)"))
+        self.assertRaises(SyntaxError, lambda: Expression("2*(x+3))"))
+
+
 if __name__ == "__main__":
     unittest.main()
