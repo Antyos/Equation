@@ -20,6 +20,7 @@ try:
     has_numpy = True
 except ImportError:
     import math
+    import random
 
     has_numpy = False
 import operator as op
@@ -89,6 +90,7 @@ def equation_extend():
         addFn("im", "re({0:s})", "\\Im\\left({0:s}\\right)", 1, np.imag)
         addFn("sqrt", "sqrt({0:s})", "\\sqrt{{{0:s}}}", 1, np.sqrt)
         addFn("exp", "exp({0:s})", "\\exp{{{0:s}}}", 1, np.exp)
+        addFn("rand", "rand()", "\\rand{{}}", 1, np.random.rand)
         addConst("pi", np.pi)
         addConst("e", np.e)
         addConst("Inf", np.Inf)
@@ -104,6 +106,7 @@ def equation_extend():
         addFn("im", "re({0:s})", "\\Im\\left({0:s}\\right)", 1, complex.imag)
         addFn("sqrt", "sqrt({0:s})", "\\sqrt{{{0:s}}}", 1, math.sqrt)
         addFn("exp", "exp({0:s})", "\\exp{{{0:s}}}", 1, math.exp)
+        addFn("rand", "rand()", "\\rand{{}}", 1, random.random)
         addConst("pi", math.pi)
         addConst("e", math.e)
         addConst("Inf", float("Inf"))
