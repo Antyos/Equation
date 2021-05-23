@@ -3,7 +3,7 @@
 
 import sys
 import unittest
-from Equation import Expression
+from Equation import Expression  # type: ignore
 import numpy as np
 
 if sys.version_info >= (3,):
@@ -769,6 +769,17 @@ class TestMismatchedParens(unittest.TestCase):
         self.assertRaises(SyntaxError, lambda: Expression("2*x+3)"))
         self.assertRaises(SyntaxError, lambda: Expression("2*(x+3))"))
 
+
+class TestImpliedMultiplication(unittest.TestCase):
+    def testValueAndParens(self):
+        self.assertRaises(SyntaxError, lambda: Expression("4(x+1)"))
+        self.assertRaises(SyntaxError, lambda: Expression("2+2(x+1)"))
+    
+    def testValueAndFunction(self):
+        self.assertRaises(SyntaxError, lambda: Expression("4sin(x+1)"))
+
+    def testParensAndParens(self):
+        self.assertRaises(SyntaxError, lambda: Expression("(x-2)(x+1)"))
 
 if __name__ == "__main__":
     unittest.main()

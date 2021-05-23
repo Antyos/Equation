@@ -218,7 +218,7 @@ class Expression(object):
     def __init__(self, expression, argorder = None, *args, **kwargs):
         if argorder is None:
             argorder = []
-            
+
         super(Expression, self).__init__(*args, **kwargs)
         if isinstance(expression, type(self)):  # clone the object
             self.__args = list(expression.__args)
@@ -350,27 +350,41 @@ class Expression(object):
             return args[0]
 
     def __next(self, __expect_op):
+        if len(self.__expression) == 0:
+            return None
+
+        # Expect operator
         if __expect_op:
+            # Close group
             m = gematch.match(self.__expression)
             if m != None:
                 self.__expression = self.__expression[m.end() :]
                 g = m.groups()
                 return g[0], "CLOSE"
+            
+            # Separator
             m = smatch.match(self.__expression)
             if m != None:
                 self.__expression = self.__expression[m.end() :]
                 return ",", "SEP"
+            
+            # Operator
             m = omatch.match(self.__expression)
             if m != None:
                 self.__expression = self.__expression[m.end() :]
                 g = m.groups()
                 return g[0], "OP"
+        
+        # Not an operator
         else:
+            # Begin group
             m = gsmatch.match(self.__expression)
             if m != None:
                 self.__expression = self.__expression[m.end() :]
                 g = m.groups()
                 return g[0], "OPEN"
+            
+            # Value
             m = vmatch.match(self.__expression)
             if m != None:
                 self.__expression = self.__expression[m.end() :]
@@ -407,22 +421,29 @@ class Expression(object):
                     raise NotImplementedError(
                         "'{0:s}' Values Not Implemented Yet".format(m.string)
                     )
+
+            # Name
             m = nmatch.match(self.__expression)
             if m != None:
                 self.__expression = self.__expression[m.end() :]
                 g = m.groups()
                 return g[0], "NAME"
+
+            # Function
             m = fmatch.match(self.__expression)
             if m != None:
                 self.__expression = self.__expression[m.end() :]
                 g = m.groups()
                 return g[0], "FUNC"
+
+            # Unary op
             m = umatch.match(self.__expression)
             if m != None:
                 self.__expression = self.__expression[m.end() :]
                 g = m.groups()
                 return g[0], "UNARY"
-            return None
+            
+        raise SyntaxError("Unable to match next token in {0:s}".format(self.__expression))
 
     def show(self):
         """Show RPN tokens
@@ -777,6 +798,7 @@ class Expression(object):
                 __expect_op = False
 
             # Close block
+            # elif v[1] == "CLOSE":
             elif __expect_op and v[1] == "CLOSE":
                 # Make sure we can pop from the stack
                 if len(stack) > 0:
@@ -954,7 +976,10 @@ constants: dict = {}
 unary_ops: dict = {}
 ops: dict = {}
 functions: dict = {}
-smatch = re.compile(r"\s*,")
+
+smatch = re.compile(r"\s*,") # Separator
+
+# Values
 # fmt: off
 vmatch = re.compile(
     r"\s*"
@@ -996,9 +1021,10 @@ vmatch = re.compile(
     r")"
 )
 # fmt: on
-nmatch = re.compile(r"\s*([a-zA-Z_][a-zA-Z0-9_]*)")
-gsmatch = re.compile(r"\s*(\()")
-gematch = re.compile(r"\s*(\))")
+
+nmatch = re.compile(r"\s*([a-zA-Z_][a-zA-Z0-9_]*)") # Name
+gsmatch = re.compile(r"\s*(\()") # Group start
+gematch = re.compile(r"\s*(\))") # Group end
 
 
 def recalculateFMatch():
