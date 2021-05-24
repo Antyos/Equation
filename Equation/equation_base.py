@@ -90,7 +90,7 @@ def equation_extend():
         addFn("im", "re({0:s})", "\\Im\\left({0:s}\\right)", 1, np.imag)
         addFn("sqrt", "sqrt({0:s})", "\\sqrt{{{0:s}}}", 1, np.sqrt)
         addFn("exp", "exp({0:s})", "\\exp{{{0:s}}}", 1, np.exp)
-        addFn("rand", "rand()", "\\rand{{}}", 1, np.random.rand)
+        addFn("rand", "rand({0:s})", "\\rand{{{0:s}}}", 0, np.random.rand)
         addConst("pi", np.pi)
         addConst("e", np.e)
         addConst("Inf", np.Inf)
@@ -102,8 +102,9 @@ def equation_extend():
         addFn("sin", "sin({0:s})", "\\sin\\left({0:s}\\right)", 1, math.sin)
         addFn("cos", "cos({0:s})", "\\cos\\left({0:s}\\right)", 1, math.cos)
         addFn("tan", "tan({0:s})", "\\tan\\left({0:s}\\right)", 1, math.tan)
-        addFn("re", "re({0:s})", "\\Re\\left({0:s}\\right)", 1, complex.real)
-        addFn("im", "re({0:s})", "\\Im\\left({0:s}\\right)", 1, complex.imag)
+        # TODO: Look into this later, but ignore for now
+        addFn("re", "re({0:s})", "\\Re\\left({0:s}\\right)", 1, complex.real) # type: ignore
+        addFn("im", "re({0:s})", "\\Im\\left({0:s}\\right)", 1, complex.imag) # type: ignore
         addFn("sqrt", "sqrt({0:s})", "\\sqrt{{{0:s}}}", 1, math.sqrt)
         addFn("exp", "exp({0:s})", "\\exp{{{0:s}}}", 1, math.exp)
         addFn("rand", "rand()", "\\rand{{}}", 1, random.random)

@@ -10,25 +10,28 @@
 # ==============================================================================
 
 
+from typing import Callable, Literal, Union
+
+
 try:
     from Equation import core
 except ImportError:
-    import core
+    from . import core
 
 
-def addFn(id, str, latex, args, func):
-    core.functions[id] = {"str": str, "latex": latex, "args": args, "func": func}
+def addFn(id: str, string: str, latex: str, args: Union[int, Literal["+"]], func: Callable):
+    core.functions[id] = {"str": string, "latex": latex, "args": args, "func": func}
 
 
-def addOp(id, str, latex, single, prec, func):
+def addOp(id: str, str: str, latex: str, single: bool, prec: int, func: Callable):
     if single:
         raise RuntimeError("Single Ops Not Yet Supported")
     core.ops[id] = {"str": str, "latex": latex, "args": 2, "prec": prec, "func": func}
 
 
-def addUnaryOp(id, str, latex, func):
+def addUnaryOp(id: str, string: str, latex: str, func: Callable):
     core.unary_ops[id] = {
-        "str": str,
+        "str": string,
         "latex": latex,
         "args": 1,
         "prec": 0,
@@ -36,5 +39,5 @@ def addUnaryOp(id, str, latex, func):
     }
 
 
-def addConst(name, value):
+def addConst(name: str, value: Union[int, float, str]):
     core.constants[name] = value
