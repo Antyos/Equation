@@ -19,8 +19,8 @@ except ImportError:
     from . import core
 
 
-def addFn(id: str, string: str, latex: str, args: Union[int, Literal["+"]], func: Callable):
-    core.functions[id] = {"str": string, "latex": latex, "args": args, "func": func}
+def addFn(id: str, string: str, latex: str, num_args: Union[int, Literal["+"]], func: Callable):
+    core.functions[id] = {"str": string, "latex": latex, "args": num_args, "func": func}
 
 
 def addOp(id: str, str: str, latex: str, single: bool, prec: int, func: Callable):
