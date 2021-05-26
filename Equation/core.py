@@ -843,20 +843,24 @@ class Expression(object):
                 if len(stack) > 0 and stack[-1][0] in functions:
                     op = stack.pop()
                     fs = functions[op[0]]  # Stack function
+                    num_args = arg_count.pop()
+
                     # If the previous token was a '(', then we have a function call with
-                    # no arguments
-                    if prev_token[1] != "OPEN":
-                        num_args = arg_count.pop()
-                        if fs["args"] != "+" and (
-                            num_args != fs["args"] and num_args not in fs["args"]
-                        ):
-                            raise SyntaxError(
-                                "Invalid number of arguments for {0:s} function".format(
-                                    op[0]
-                                )
-                            )
-                    else:
+                    # no arguments. We correct for it here because it is easier than
+                    # checking for it when appending to arg_count or appending a 0 by
+                    # and trying to figure out when we found the first arg
+                    if prev_token[1] == "OPEN":
                         num_args = 0
+
+                    if fs["args"] != "+" and (
+                        num_args != fs["args"] and num_args not in fs["args"]
+                    ):
+                        raise SyntaxError(
+                            "Invalid number of arguments for {0:s} function".format(
+                                op[0]
+                            )
+                        )
+
                     self.__expr.append(
                         ExpressionFunction(
                             fs["func"],
