@@ -12,14 +12,14 @@ import os.path
 import re
 
 pkg_name = "Equation"
-pkg = {}
+pkg: dict = {}
 with open(os.path.join(pkg_name, "_info.py")) as f:
     exec(f.read(), pkg, pkg)
 
-reimg = re.compile("^!\[(?P<label>[^\]]*)\]\((?P<src>[^\)]*)\)$")
-relink = re.compile("\[(?P<label>[^\]]*)\]\((?P<href>[^\)]*)\)")
+reimg = re.compile(r"^!\[(?P<label>[^\]]*)\]\((?P<src>[^\)]*)\)$")
+relink = re.compile(r"\[(?P<label>[^\]]*)\]\((?P<href>[^\)]*)\)")
 reimglink = re.compile(
-    "^\[!\[(?P<label>[^\]]*)\]\((?P<src>[^\)]*)\)\]\((?P<href>[^\)]*)\)$"
+    r"^\[!\[(?P<label>[^\]]*)\]\((?P<src>[^\)]*)\)\]\((?P<href>[^\)]*)\)$"
 )
 
 
@@ -32,7 +32,7 @@ def read(fname):
         if m is not None:
             g = m.groupdict()
             if g["label"] is None:
-                g["label"] = "image" + imgindex
+                g["label"] = "image" + str(imgindex)
                 imgindex += 1
             lines = "|{label:s}|\n\n.. |{label:s}| image:: {src:s}\n".format(**g)
             continue
@@ -40,7 +40,7 @@ def read(fname):
         if m is not None:
             g = m.groupdict()
             if g["label"] is None:
-                g["label"] = "image" + imgindex
+                g["label"] = "image" + str(imgindex)
                 imgindex += 1
             lines += (
                 "|{label:s}|\n\n.. |{label:s}| image:: {src:s}\n"
@@ -49,7 +49,7 @@ def read(fname):
             continue
         if line[0:5] == "Note:":
             line = ".. Note::" + line[5:]
-        line = relink.sub("`\g<label> <\g<href>>`_", line)
+        line = relink.sub(r"`\g<label> <\g<href>>`_", line)
         lines += line
     return lines
 
@@ -58,10 +58,11 @@ def readlist(fname):
     return open(os.path.join(os.path.dirname(__file__), fname), "rt").read().split("\n")
 
 
-if "__appname__" in pkg:
-    console_scripts = [pkg["__appname__"] + "=" + pkg_name + ".console:run"]
-else:
-    console_scripts = None
+console_scripts = (
+    [pkg["__appname__"] + "=" + pkg_name + ".console:run"]
+    if "__appname__" in pkg
+    else None
+)
 
 entry_points = {}
 if console_scripts is not None:
