@@ -15,7 +15,7 @@ import math
 
 import sys
 import re
-from typing import List, Optional
+from typing import Any, List, Optional, Tuple
 
 if sys.version_info >= (3,):
     xrange = range
@@ -353,15 +353,22 @@ class Expression(object):
         if len(self.__expression) == 0:
             return None
 
+        # Begin group
+        m = gsmatch.match(self.__expression)
+        if m != None:
+            self.__expression = self.__expression[m.end() :]
+            g = m.groups()
+            return g[0], "OPEN"
+            
+        # Close group
+        m = gematch.match(self.__expression)
+        if m != None:
+            self.__expression = self.__expression[m.end() :]
+            g = m.groups()
+            return g[0], "CLOSE"
+            
         # Expect operator
         if __expect_op:
-            # Close group
-            m = gematch.match(self.__expression)
-            if m != None:
-                self.__expression = self.__expression[m.end() :]
-                g = m.groups()
-                return g[0], "CLOSE"
-            
             # Separator
             m = smatch.match(self.__expression)
             if m != None:
@@ -377,13 +384,6 @@ class Expression(object):
         
         # Not an operator
         else:
-            # Begin group
-            m = gsmatch.match(self.__expression)
-            if m != None:
-                self.__expression = self.__expression[m.end() :]
-                g = m.groups()
-                return g[0], "OPEN"
-            
             # Value
             m = vmatch.match(self.__expression)
             if m != None:
@@ -786,27 +786,27 @@ class Expression(object):
     def __compile(self):
         self.__expr = []
         stack = []
-        argc = []
+        arg_count = [] # Arg count
         __expect_op = False  # Expect next token to be value (false) or operator (true)
 
         # Step through expression tokens
-        v = self.__next(__expect_op)
-        while v != None:
+        prev_token = None
+        token = self.__next(__expect_op)
+        while token != None:
             # Open block
-            if not __expect_op and v[1] == "OPEN":
-                stack.append(v)
+            if token[1] == "OPEN":
+                stack.append(token)
                 __expect_op = False
 
             # Close block
-            # elif v[1] == "CLOSE":
-            elif __expect_op and v[1] == "CLOSE":
+            elif token[1] == "CLOSE":
                 # Make sure we can pop from the stack
                 if len(stack) > 0:
                     op = stack.pop()
                 else:
                     raise SyntaxError(
                         'Encountered closing "{0:s}" without a matching opening one.'.format(
-                            v[0]
+                            token[0]
                         )
                     )
                 # Backtrack through stack until finding the last OPEN
@@ -824,7 +824,7 @@ class Expression(object):
                     else:
                         raise SyntaxError(
                             'Encountered closing "{0:s}" without a matching opening one.'.format(
-                                v[0]
+                                token[0]
                             )
                         )
                 # If the last token in the stack is a function (after we have
@@ -844,26 +844,35 @@ class Expression(object):
                     if stack[-1][0] in functions:
                         op = stack.pop()
                         fs = functions[op[0]]  # Stack function
-                        args = argc.pop()
-                        if fs["args"] != "+" and (
-                            args != fs["args"] and args not in fs["args"]
-                        ):
-                            raise SyntaxError(
-                                "Invalid number of arguments for {0:s} function".format(
-                                    op[0]
+                        # Make sure the function we are looking at is expecting
+                        # arguments
+                        # TODO: Can't do that because we don't know how many arguments
+                        # the user may have specified. This also means `arg_count` is now
+                        # somewhat unreliable... ugh. We need to check if specifically
+                        # for a `()`
+                        if prev_token[1] != "OPEN":
+                            num_args = arg_count.pop()
+                            if fs["args"] != "+" and (
+                                num_args != fs["args"] and num_args not in fs["args"]
+                            ):
+                                raise SyntaxError(
+                                    "Invalid number of arguments for {0:s} function".format(
+                                        op[0]
+                                    )
                                 )
-                            )
+                        else:
+                            num_args = 0
                         self.__expr.append(
                             ExpressionFunction(
-                                fs["func"], args, fs["str"], fs["latex"], op[0], True
+                                fs["func"], num_args, fs["str"], fs["latex"], op[0], True
                             )
                         )
 
                 __expect_op = True
 
             # Separator
-            elif __expect_op and v[0] == ",":
-                argc[-1] += 1
+            elif __expect_op and token[0] == ",":
+                arg_count[-1] += 1
                 op = stack.pop()
                 while op[1] != "OPEN":
                     fs = self.__getfunction(op)
@@ -877,20 +886,24 @@ class Expression(object):
                 __expect_op = False
 
             # Operator (*, +, etc.)
-            elif __expect_op and v[0] in ops:
-                fn = ops[v[0]]  # New function
+            elif __expect_op and token[0] in ops:
+                fn = ops[token[0]]  # New function
                 if len(stack) == 0:
-                    stack.append(v)
+                    stack.append(token)
                     __expect_op = False
-                    v = self.__next(__expect_op)
+                    prev_token = token
+                    token = self.__next(__expect_op)
                     continue
+
                 op = stack.pop()
                 if op[0] == "(":
                     stack.append(op)
-                    stack.append(v)
+                    stack.append(token)
                     __expect_op = False
-                    v = self.__next(__expect_op)
+                    prev_token = token
+                    token = self.__next(__expect_op)
                     continue
+
                 fs = self.__getfunction(op)  # Stack function
                 while True:
                     if fn["prec"] >= fs["prec"]:
@@ -905,53 +918,54 @@ class Expression(object):
                             )
                         )
                         if len(stack) == 0:
-                            stack.append(v)
+                            stack.append(token)
                             break
                         op = stack.pop()
                         if op[0] == "(":
                             stack.append(op)
-                            stack.append(v)
+                            stack.append(token)
                             break
                         fs = self.__getfunction(op)
                     else:
                         stack.append(op)
-                        stack.append(v)
+                        stack.append(token)
                         break
                 __expect_op = False
 
             # Unary operators (!, -)
-            elif not __expect_op and v[0] in unary_ops:
-                fn = unary_ops[v[0]]
-                stack.append(v)
+            elif not __expect_op and token[0] in unary_ops:
+                fn = unary_ops[token[0]]
+                stack.append(token)
                 __expect_op = False
 
             # Functions (abs(), pow(), etc.)
-            elif not __expect_op and v[0] in functions:
-                stack.append(v)
-                argc.append(1)
+            elif not __expect_op and token[0] in functions:
+                stack.append(token)
+                arg_count.append(1)
                 __expect_op = False
 
             # Alphanumeric value ('x', 'num', etc.)
-            elif not __expect_op and v[1] == "NAME":
-                self.__argsused.add(v[0])
-                if v[0] not in self.__args:
-                    self.__args.append(v[0])
-                self.__expr.append(ExpressionVariable(v[0]))
+            elif not __expect_op and token[1] == "NAME":
+                self.__argsused.add(token[0])
+                if token[0] not in self.__args:
+                    self.__args.append(token[0])
+                self.__expr.append(ExpressionVariable(token[0]))
                 __expect_op = True
 
             # Numeric value (1, 2, 3, etc.)
-            elif not __expect_op and v[1] == "VALUE":
-                self.__expr.append(ExpressionValue(v[0]))
+            elif not __expect_op and token[1] == "VALUE":
+                self.__expr.append(ExpressionValue(token[0]))
                 __expect_op = True
 
             # Unexpected token
             else:
                 raise SyntaxError(
                     'Invalid Token "{0:s}" in Expression, Expected {1:s}'.format(
-                        v, "Op" if __expect_op else "Value"
+                        token, "Op" if __expect_op else "Value"
                     )
                 )
-            v = self.__next(__expect_op)
+            prev_token = token
+            token = self.__next(__expect_op)
 
         # Collapse the rest of the stack after coming across the last token
         if len(stack) > 0:
