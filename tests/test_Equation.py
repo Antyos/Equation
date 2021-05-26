@@ -782,11 +782,11 @@ class TestImpliedMultiplication(unittest.TestCase):
         self.assertRaises(SyntaxError, lambda: Expression("(x-2)(x+1)"))
 
 
-class TestRandom(unittest.TestCase):
+class TestRandomFunction(unittest.TestCase):
     def setUp(self):
         self.fn = Expression("rand()")
 
-    def testRandCall(self):
+    def testRandFunction(self):
         self.assertTrue(0 <= self.fn() < 1)  # type: ignore
 
     def tearDown(self):
