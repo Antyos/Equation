@@ -10,7 +10,13 @@
 # ==============================================================================
 
 
-from typing import Callable, Literal, Union
+from typing import Callable, Union
+# 'Literal' is not part of typing in py3.7
+# See: https://github.com/python/typing/issues/707
+try:
+    from typing import Literal # type: ignore
+except ImportError:
+    from typing_extensions import Literal # type: ignore
 
 
 try:
