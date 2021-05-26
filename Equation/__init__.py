@@ -58,9 +58,10 @@ def load():
                 return sys.modules[name]
 
     try:
-        from Equation.core import recalculateFMatch
+        from Equation.token_matcher import recalculateFMatch
     except ImportError:
-        from .core import recalculateFMatch
+        from .token_matcher import recalculateFMatch
+    
     if not hasattr(load, "loaded"):
         load.loaded = False
     if not load.loaded:

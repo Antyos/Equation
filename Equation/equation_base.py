@@ -25,7 +25,7 @@ except ImportError:
     has_numpy = False
 import operator as op
 from functools import reduce
-from Equation.util import addOp, addFn, addConst, addUnaryOp
+from Equation.token_matcher import addOp, addFn, addConst, addUnaryOp
 from Equation.similar import sim, nsim, gsim, lsim
 
 
