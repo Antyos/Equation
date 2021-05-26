@@ -9,12 +9,14 @@
 #       http://www.alphaomega-technology.com.au/license/AOT-OL/1.0
 # ==============================================================================
 
+from __future__ import annotations
+
 import math
 
 import re
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple, Union
 
-class ExpressionObject(object):
+class ExpressionObject:
     def __init__(self, *args, **kwargs):
         super(ExpressionObject, self).__init__(*args, **kwargs)
 
@@ -173,7 +175,7 @@ class ExpressionVariable(ExpressionObject):
         )
 
 
-class Expression(object):
+class Expression:
     """Expression or Equation Object
 
     This is a object that respresents an equation string in a manner
@@ -207,19 +209,20 @@ class Expression(object):
         for mapping from positional arguments
     """
 
-    def __init__(self, expression, argorder=None, *args, **kwargs):
+    def __init__(self, expression: Union[str, Expression], argorder: List[str]=None, *args, **kwargs):
         if argorder is None:
             argorder = []
 
-        super(Expression, self).__init__(*args, **kwargs)
         if isinstance(expression, type(self)):  # clone the object
-            self.__args = list(expression.__args)
-            self.__vars = dict(expression.__vars)  # intenral array of preset variables
-            self.__argsused = set(expression.__argsused)
-            self.__expr = list(expression.__expr)
-            self.variables = {}  # call variables
+            self.__args: List[str] = list(expression.__args)
+            self.__vars: dict = dict(expression.__vars)  # intenral array of preset variables
+            self.__argsused: set = set(expression.__argsused)
+            self.__expr: list = list(expression.__expr)
+            self.variables: dict = {}  # call variables
         else:
-            self.__expression = expression
+            # At this point we know expression is a string but the type checker doesn't.
+            # This will make it happy
+            self.__expression = str(expression)
             self.__args = argorder
             self.__vars = {}  # intenral array of preset variables
             self.__argsused = set()
@@ -944,7 +947,9 @@ class Expression(object):
             elif not __expect_op and token[1] == "NAME":
                 self.__argsused.add(token[0])
                 if token[0] not in self.__args:
-                    self.__args.append(token[0])
+                    # token[0] will always be string if token[1] == "NAME".
+                    # Type checker doesn't know, but it's safe to ignore
+                    self.__args.append(token[0]) # type: ignore
                 self.__expr.append(ExpressionVariable(token[0]))
                 __expect_op = True
 
