@@ -215,7 +215,7 @@ class Expression(object):
         for mapping from positional arguments
     """
 
-    def __init__(self, expression, argorder = None, *args, **kwargs):
+    def __init__(self, expression, argorder=None, *args, **kwargs):
         if argorder is None:
             argorder = []
 
@@ -359,14 +359,14 @@ class Expression(object):
             self.__expression = self.__expression[m.end() :]
             g = m.groups()
             return g[0], "OPEN"
-            
+
         # Close group
         m = gematch.match(self.__expression)
         if m != None:
             self.__expression = self.__expression[m.end() :]
             g = m.groups()
             return g[0], "CLOSE"
-            
+
         # Expect operator
         if __expect_op:
             # Separator
@@ -374,14 +374,14 @@ class Expression(object):
             if m != None:
                 self.__expression = self.__expression[m.end() :]
                 return ",", "SEP"
-            
+
             # Operator
             m = omatch.match(self.__expression)
             if m != None:
                 self.__expression = self.__expression[m.end() :]
                 g = m.groups()
                 return g[0], "OP"
-        
+
         # Not an operator
         else:
             # Value
@@ -442,8 +442,10 @@ class Expression(object):
                 self.__expression = self.__expression[m.end() :]
                 g = m.groups()
                 return g[0], "UNARY"
-            
-        raise SyntaxError("Unable to match next token in {0:s}".format(self.__expression))
+
+        raise SyntaxError(
+            "Unable to match next token in {0:s}".format(self.__expression)
+        )
 
     def show(self):
         """Show RPN tokens
@@ -786,7 +788,7 @@ class Expression(object):
     def __compile(self):
         self.__expr = []
         stack = []
-        arg_count = [] # Arg count
+        arg_count = []  # Arg count
         __expect_op = False  # Expect next token to be value (false) or operator (true)
 
         # Step through expression tokens
@@ -795,6 +797,14 @@ class Expression(object):
         while token != None:
             # Open block
             if token[1] == "OPEN":
+                # If value before '(' is either a value or ')', the user likely meant to
+                # infer multiplication, such as `2(x+1)`. However, we want this to be
+                # explicitly defined.
+                if prev_token and prev_token[1] in ["CLOSE", "VALUE"]:
+                    raise SyntaxError(
+                        'Missing an operator between "{0}" and "{1}.'
+                        'Did you mean to include "*"?'.format(prev_token[0], token[0])
+                    )
                 stack.append(token)
                 __expect_op = False
 
@@ -830,43 +840,33 @@ class Expression(object):
                 # If the last token in the stack is a function (after we have
                 # encountered an opening paren), then this is a function call or
                 # improper syntax
-                if len(stack) > 0:
-                    # If value before '(' is a value, the user likely meant to infer
-                    # multiplication, such as `2(x+1)`. However, we want this explicitly
-                    # defined.
-                    if stack[-1][1] == "VALUE":
-                        raise SyntaxError(
-                            "Need operator between {0:s} and {1:s}."
-                            " Did you mean to include '*'?".format(stack[-1][0], op[0])
-                        )
-
-                    # Default function call
-                    if stack[-1][0] in functions:
-                        op = stack.pop()
-                        fs = functions[op[0]]  # Stack function
-                        # Make sure the function we are looking at is expecting
-                        # arguments
-                        # TODO: Can't do that because we don't know how many arguments
-                        # the user may have specified. This also means `arg_count` is now
-                        # somewhat unreliable... ugh. We need to check if specifically
-                        # for a `()`
-                        if prev_token[1] != "OPEN":
-                            num_args = arg_count.pop()
-                            if fs["args"] != "+" and (
-                                num_args != fs["args"] and num_args not in fs["args"]
-                            ):
-                                raise SyntaxError(
-                                    "Invalid number of arguments for {0:s} function".format(
-                                        op[0]
-                                    )
+                if len(stack) > 0 and stack[-1][0] in functions:
+                    op = stack.pop()
+                    fs = functions[op[0]]  # Stack function
+                    # If the previous token was a '(', then we have a function call with
+                    # no arguments
+                    if prev_token[1] != "OPEN":
+                        num_args = arg_count.pop()
+                        if fs["args"] != "+" and (
+                            num_args != fs["args"] and num_args not in fs["args"]
+                        ):
+                            raise SyntaxError(
+                                "Invalid number of arguments for {0:s} function".format(
+                                    op[0]
                                 )
-                        else:
-                            num_args = 0
-                        self.__expr.append(
-                            ExpressionFunction(
-                                fs["func"], num_args, fs["str"], fs["latex"], op[0], True
                             )
+                    else:
+                        num_args = 0
+                    self.__expr.append(
+                        ExpressionFunction(
+                            fs["func"],
+                            num_args,
+                            fs["str"],
+                            fs["latex"],
+                            op[0],
+                            True,
                         )
+                    )
 
                 __expect_op = True
 
@@ -991,7 +991,7 @@ unary_ops: dict = {}
 ops: dict = {}
 functions: dict = {}
 
-smatch = re.compile(r"\s*,") # Separator
+smatch = re.compile(r"\s*,")  # Separator
 
 # Values
 # fmt: off
@@ -1036,9 +1036,9 @@ vmatch = re.compile(
 )
 # fmt: on
 
-nmatch = re.compile(r"\s*([a-zA-Z_][a-zA-Z0-9_]*)") # Name
-gsmatch = re.compile(r"\s*(\()") # Group start
-gematch = re.compile(r"\s*(\))") # Group end
+nmatch = re.compile(r"\s*([a-zA-Z_][a-zA-Z0-9_]*)")  # Name
+gsmatch = re.compile(r"\s*(\()")  # Group start
+gematch = re.compile(r"\s*(\))")  # Group end
 
 
 def recalculateFMatch():
