@@ -3,11 +3,8 @@
 
 import sys
 import unittest
-from Equation import Expression  # type: ignore
+from Equation import Expression
 import numpy as np
-
-if sys.version_info >= (3,):
-    xrange = range
 
 
 class TestEquation(unittest.TestCase):
@@ -127,7 +124,7 @@ class TestHexEquation(unittest.TestCase):
         pass
 
     def testCall(self):
-        for n in xrange(-784323, 294924, 6831):
+        for n in range(-784323, 294924, 6831):
             if n < 0:
                 hexstr = hex(n)[3:]
                 prefix = "-0x"
@@ -150,7 +147,7 @@ class TestOctEquation(unittest.TestCase):
             l = 2
         else:
             l = 1
-        for n in xrange(-784323, 294924, 6831):
+        for n in range(-784323, 294924, 6831):
             if n < 0:
                 octstr = oct(n)[l + 1 :]
                 prefix = "-0o"
@@ -168,7 +165,7 @@ class TestBinEquation(unittest.TestCase):
         pass
 
     def testCall(self):
-        for n in xrange(-784323, 294924, 6831):
+        for n in range(-784323, 294924, 6831):
             if n < 0:
                 binstr = bin(n)[3:]
                 prefix = "-0b"
@@ -782,16 +779,33 @@ class TestImpliedMultiplication(unittest.TestCase):
         self.assertRaises(SyntaxError, lambda: Expression("(x-2)(x+1)"))
 
 
-class TestRandom(unittest.TestCase):
+class TestRandomFunction(unittest.TestCase):
     def setUp(self):
         self.fn = Expression("rand()")
 
-    def testRandCall(self):
+    def testRandFunction(self):
         self.assertTrue(0 <= self.fn() < 1)  # type: ignore
 
     def tearDown(self):
         pass
 
+
+class TestIfFunction(unittest.TestCase):
+    def setUp(self) -> None:
+        self.fn = Expression("if(x < 1, 0, 1)")
+        self.fn2 = Expression("if(x < 1, sin(x), if(x < 2, x, 0))")
+
+    def testSimpleIf(self):
+        self.assertEqual(self.fn(0), 0)
+        self.assertEqual(self.fn(1), 1)
+
+    def testNestedIf(self):
+        self.assertAlmostEquals(self.fn2(0.5), 0.479425538604203) # type: ignore
+        self.assertEqual(self.fn2(1.5), 1.5)
+        self.assertEqual(self.fn2(2), 0)
+
+    def tearDown(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()
