@@ -9,18 +9,10 @@
 #       http://www.alphaomega-technology.com.au/license/AOT-OL/1.0
 # ==============================================================================
 
-from __future__ import print_function
-
 import math
 
-import sys
 import re
 from typing import Any, List, Optional, Tuple
-
-if sys.version_info >= (3,):
-    xrange = range
-    basestring = str
-
 
 class ExpressionObject(object):
     def __init__(self, *args, **kwargs):
@@ -47,7 +39,7 @@ class ExpressionValue(ExpressionObject):
             E = [0, 0]
             B = [0.0, 0.0]
             out = ["", ""]
-            for i in xrange(2):
+            for i in range(2):
                 if V[i] == 0:
                     E[i] = 0
                     B[i] = 0
@@ -126,7 +118,7 @@ class ExpressionFunction(ExpressionObject):
 
     def toStr(self, args, expression):
         params = []
-        for i in xrange(self.nargs):
+        for i in range(self.nargs):
             params.append(args.pop())
         if self.isfunc:
             return str(self.display.format(",".join(params[::-1])))
@@ -135,7 +127,7 @@ class ExpressionFunction(ExpressionObject):
 
     def toRepr(self, args, expression):
         params = []
-        for i in xrange(self.nargs):
+        for i in range(self.nargs):
             params.append(args.pop())
         if self.isfunc:
             return str(self.form.format(",".join(params[::-1])))
@@ -144,7 +136,7 @@ class ExpressionFunction(ExpressionObject):
 
     def __call__(self, args, expression):
         params = []
-        for i in xrange(self.nargs):
+        for i in range(self.nargs):
             params.append(args.pop())
         return self.function(*params[::-1])
 
@@ -308,7 +300,7 @@ class Expression(object):
                     len(args),
                 )
             )
-        for i in xrange(len(args)):
+        for i in range(len(args)):
             if i < len(self.__args):
                 if self.__args[i] in kwargs:
                     raise TypeError(
@@ -528,7 +520,7 @@ class Expression(object):
 
     def __combine(self, other, op):
         if op not in ops or not isinstance(
-            other, (int, float, complex, type(self), basestring)
+            other, (int, float, complex, type(self), str)
         ):
             return NotImplemented
         else:
@@ -536,7 +528,7 @@ class Expression(object):
             if isinstance(other, (int, float, complex)):
                 obj.__expr.append(ExpressionValue(other))
             else:
-                if isinstance(other, basestring):
+                if isinstance(other, str):
                     try:
                         other = type(self)(other)
                     except:
@@ -569,7 +561,7 @@ class Expression(object):
 
     def __rcombine(self, other, op):
         if op not in ops or not isinstance(
-            other, (int, float, complex, type(self), basestring)
+            other, (int, float, complex, type(self), str)
         ):
             return NotImplemented
         else:
@@ -577,7 +569,7 @@ class Expression(object):
             if isinstance(other, (int, float, complex)):
                 obj.__expr.insert(0, ExpressionValue(other))
             else:
-                if isinstance(other, basestring):
+                if isinstance(other, str):
                     try:
                         other = type(self)(other)
                     except:
@@ -612,7 +604,7 @@ class Expression(object):
 
     def __icombine(self, other, op):
         if op not in ops or not isinstance(
-            other, (int, float, complex, type(self), basestring)
+            other, (int, float, complex, type(self), str)
         ):
             return NotImplemented
         else:
@@ -620,7 +612,7 @@ class Expression(object):
             if isinstance(other, (int, float, complex)):
                 obj.__expr.append(ExpressionValue(other))
             else:
-                if isinstance(other, basestring):
+                if isinstance(other, str):
                     try:
                         other = type(self)(other)
                     except:

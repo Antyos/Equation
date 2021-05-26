@@ -45,22 +45,13 @@ def load():
     import os.path
     import sys
     import traceback
-
-    try:
-        import importlib
-    except ImportError:
-        # Python 2.6 dosen't have importlib used dummy object
-        # wrap __import__
-        class importlib:
-            @staticmethod
-            def import_module(name):
-                __import__(name)
-                return sys.modules[name]
-
+    import importlib
+    
     try:
         from Equation.core import recalculateFMatch
     except ImportError:
         from .core import recalculateFMatch
+        
     if not hasattr(load, "loaded"):
         load.loaded = False
     if not load.loaded:
