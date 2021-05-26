@@ -76,6 +76,7 @@ def equation_extend():
     addOp("~>", "({0:s} >~ {1:s})", "\\left({0:s} \\gtrapprox {1:s}\\right)", False, 5, gsim)
     addUnaryOp("!", "(!{0:s})", "\\neg{0:s}", op.not_)
     addUnaryOp("-", "-{0:s}", "-{0:s}", op.neg)
+    addFn("if", "if({0:s})", "\\if\\left({0:s}\\right)", 3, lambda condition, if_true, if_false: if_true if condition else if_false)
     addFn("abs", "abs({0:s})", "\\left|{0:s}\\right|", 1, op.abs)
     addFn("sum", "sum({0:s})", "\\sum\\left({0:s}\\right)", "+", sumargs)
     addFn("prod", "prod({0:s})", "\\prod\\left({0:s}\\right)", "+", product)
