@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/alphaomega-technology/Equation.svg?branch=master)](https://travis-ci.org/alphaomega-technology/Equation)
+[![Python package](https://github.com/Antyos/Equation/actions/workflows/python-package.yml/badge.svg)](https://github.com/Antyos/Equation/actions/workflows/python-package.yml)
 
 Equation Interpeter
 ===================
