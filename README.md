@@ -1,11 +1,12 @@
-[![Python package](https://github.com/Antyos/Equation/actions/workflows/python-package.yml/badge.svg)](https://github.com/Antyos/Equation/actions/workflows/python-package.yml)
-
 Equation Interpeter
 ===================
+
+[![Python package](https://github.com/Antyos/Equation/actions/workflows/python-package.yml/badge.svg)](https://github.com/Antyos/Equation/actions/workflows/python-package.yml)
+
 The Equation Package provide an extentable Equation Parser and Evaluation System.
 
 It will take a string such as `"sin(x+y^2)"` and convert it to a python object that can be called
-this allow the safe evaluation of equations stored in configuration files or enterned from the 
+this allow the safe evaluation of equations stored in configuration files or enterned from the
 keyboard. This Package never calls a python evaluation command hence their is no risk of executing
 any unexpected python code.
 
@@ -17,14 +18,16 @@ an explicit order may be set when the Expression object is created.
 Example
 -------
 
-	>>> from Equation import Expression
-	>>> fn = Expression("sin(x+y^2)",["y","x"])
-	>>> fn
-	sin((x + (y ^ (2+0j))))
-	>>> print fn
-	\sin\left(\left(x + y^{(2+0j)}\right)\right)
-	>>> fn(3,4)
-	(0.42016703682664092+0j)
+```python
+>>> from Equation import Expression
+>>> fn = Expression("sin(x+y^2)",["y","x"])
+>>> fn
+sin((x + (y ^ (2+0j))))
+>>> print fn
+\sin\left(\left(x + y^{(2+0j)}\right)\right)
+>>> fn(3,4)
+(0.42016703682664092+0j)
+```
 
 Numpy Arrays Supported
 ----------------------
@@ -41,6 +44,7 @@ Note: repr() method will return a string suitable for passing to Expression, how
 
 Future Versions
 ---------------
+
 Goals for future versions are:
 
 - Reduce repr() type respresentation to use only required brackets
