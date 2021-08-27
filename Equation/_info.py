@@ -15,7 +15,7 @@ __license__ = """\
 AlphaOmega Technology Open License Version 1.0\
  (http://www.alphaomega-technology.com.au/license/AOT-OL/1.0)"""
 __contact__ = "Glen Fletcher <glen.fletcher@alphaomega-technology.com.au>"
-__version__ = "1.3"
+__version__ = "1.3.1"
 __title__ = "Equation"
 __desc__ = """\
 General Equation Parser and Evaluator"""
